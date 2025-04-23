@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PageCategory {
+  id         Int        @id @default(autoincrement())
+  title      String?
+  slug       String     @unique(map: "page_categories_slug_unique")
+  order      Int        @default(0)
+  news_pages NewsPage[]
+
+  @@map("page_categories")
+}
+
+model NewspaperCategory {
+  id         Int         @id @default(autoincrement())
+  title      String?
+  slug       String      @unique(map: "newspaper_categories_slug_unique")
+  order      Int         @default(0)
+  newspapers Newspaper[]
+
+  @@map("newspaper_categories")
+}
+
+model Newspaper {
+  id                   Int                 @id @default(autoincrement())
+  title_id             Int                 @default(autoincrement())
+  date                 String
+  pages                NewsPageNewspaper[] @ignore
+  newspaper_categories NewspaperCategory   @relation(fields: [title_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "newspapers_title_id_newspaper_categories_id_fk")
+
+  @@map("newspapers")
+}
+
+model NewsPage {
+  id              Int                 @id @default(autoincrement())
+  title_id        Int                 @default(autoincrement())
+  date            String
+  image           String
+  lastModified    DateTime            @default(now()) @map("last_modified") @db.Timestamp(6)
+  mapData         MapData[]
+  page_categories PageCategory        @relation(fields: [title_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "news_pages_title_id_page_categories_id_fk")
+  newspapers      NewsPageNewspaper[] @ignore
+
+  @@map("news_pages")
+}
+
+model MapData {
+  id          Int      @id @default(autoincrement())
+  newsPageId  Int      @default(autoincrement()) @map("news_page_id")
+  coordinates String
+  title       String?
+  link        String?
+  newsPage    NewsPage @relation(fields: [newsPageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "map_data_news_page_id_news_pages_id_fk")
+
+  @@map("map_data")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model NewsPageNewspaper {
+  newsPageId  Int       @default(autoincrement()) @map("news_page_id")
+  newspaperId Int       @default(autoincrement()) @map("newspaper_id")
+  newsPage    NewsPage  @relation(fields: [newsPageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "news_pages_to_newspapers_news_page_id_news_pages_id_fk")
+  newspaper   Newspaper @relation(fields: [newspaperId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "news_pages_to_newspapers_newspaper_id_newspapers_id_fk")
+
+  @@map("news_pages_to_newspapers")
+  @@ignore
+}

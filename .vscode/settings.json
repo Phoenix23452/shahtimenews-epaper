@@ -1,0 +1,9 @@
+{
+    "eslint.problems.shortenToSingleLine": true,
+    "eslint.codeActionsOnSave.rules": null,
+    "reactSnippets.settings.prettierEnabled": true,
+    "prettier.configPath": "",
+    "prettier.useTabs": true,
+    "notebook.defaultFormatter": "esbenp.prettier-vscode",
+    "prettier.withNodeModules": true
+}
