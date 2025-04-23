@@ -10,6 +10,11 @@
 !.yarn/releases
 !.yarn/versions
 
+#Datebase
+/generated
+/db/index.ts
+/db/schema.ts
+/prisma/migrations
 # testing
 /coverage
 
